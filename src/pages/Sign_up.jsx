@@ -7,8 +7,17 @@ import {
   } from "@material-tailwind/react";
   import { Link } from "react-router-dom";
   
+
   
   export function SignUp() {
+    async function handleSubmit({id,name,index,}) {
+      try {
+        const userData ={id,name,index};
+        
+      }
+      catch (error){
+        console.log(error);
+      }}
     return (
       <section className="m-8 flex">
               <div className="w-2/5 h-full hidden lg:block">
