@@ -1,10 +1,9 @@
-import Home from './pages/Home';
-
-
+import React from 'react';
+import RoutesComponent from './routes/routes'; 
 const App = () => {
   return (
     <div>
-       <Home></Home>
+      <RoutesComponent />
     </div>
   );
 };
