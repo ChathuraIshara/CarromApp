@@ -1,9 +1,10 @@
 export interface Player {
-    id:string;
+    // id:string;
     name:string;
-    index:number;
-    faculty:string;
-    wtsno:string;
-    district:string;
-    date_joined:string;
+    index:string;
+    password:string;
+    // faculty:string;
+    // wtsno:string;
+    // district:string;
+    // date_joined:string;
 }
