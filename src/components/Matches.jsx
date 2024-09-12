@@ -6,6 +6,9 @@ function Matches() {
   const [matches, setMatches] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState("newest"); // Default sort order
+  const [searchQuery, setSearchQuery] = useState(""); // Add search query state
+
+  const [filteredMatches, setFilteredMatches] = useState([]);
   const itemsPerPage = 7;
 
   const init = async () => {
@@ -26,8 +29,8 @@ function Matches() {
           (a, b) => new Date(a.time) - new Date(b.time)
         );
       }
-
       setMatches(sortedMatches);
+      setFilteredMatches(sortedMatches);
     } catch (error) {
       console.error("Error fetching matches:", error);
     }
@@ -37,13 +40,33 @@ function Matches() {
     init();
   }, [sortOrder]); // Re-fetch and sort matches when sortOrder changes
 
-  // Calculate total pages
-  const totalPages = Math.ceil(matches.length / itemsPerPage);
+  useEffect(() => {
+    // Filter matches based on search query
+    if (!matches.length) return;
+    if (!searchQuery) return;
 
-  // Get current page matches
+    const filtered = matches.filter((match) => {
+      const searchLower = searchQuery.toLowerCase();
+
+      if (!match.player1_name && !match.player2_name) return;
+      return (
+        match.player1_name.toLowerCase().includes(searchLower) ||
+        match.player2_name.toLowerCase().includes(searchLower)
+      );
+    });
+    setFilteredMatches(filtered);
+  }, [searchQuery, matches]);
+
+  // Calculate total pages based on filtered matches
+  const totalPages = Math.ceil(filteredMatches.length / itemsPerPage);
+
+  // Get current page matches from filtered matches
   const indexOfLastMatch = currentPage * itemsPerPage;
   const indexOfFirstMatch = indexOfLastMatch - itemsPerPage;
-  const currentMatches = matches.slice(indexOfFirstMatch, indexOfLastMatch);
+  const currentMatches = filteredMatches.slice(
+    indexOfFirstMatch,
+    indexOfLastMatch
+  );
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
@@ -69,7 +92,12 @@ function Matches() {
         <div className="px-6 ">
           <div className="w-full max-w-sm min-w-[200px] relative flex flex-col sm:flex-row gap-3 ">
             <div className="relative sm:block ">
-              <Input label="Search" />
+              {/* Input for searching matches */}
+              <Input
+                label="Search by Name"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
             <div className="relative sm:block">
               <Select
@@ -159,7 +187,7 @@ function Matches() {
         <div className="flex justify-between items-center px-4 py-5">
           <div className="text-sm hidden sm:block text-slate-500">
             Showing {indexOfFirstMatch + 1} to {indexOfLastMatch} of{" "}
-            {matches.length} entries
+            {filteredMatches.length} entries
           </div>
           <div className="flex space-x-1">
             <button
@@ -209,3 +237,4 @@ function formatDateTime(isoString) {
 
   return { formattedDate, formattedTime };
 }
+``;
