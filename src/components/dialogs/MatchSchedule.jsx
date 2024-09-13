@@ -1,4 +1,5 @@
 import React from "react";
+import { useState,useEffect } from "react";
 import {
   Input,
   Button,
@@ -11,8 +12,44 @@ import {
 } from "@material-tailwind/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
+const players = [
+  "John Doe",
+  "Jane Smith",
+  "James Johnson",
+  "Emily Davis",
+  "Michael Brown",
+  // Add more player names here
+];
+
 
 export function MatchSchedule({open,setOpen,openSuccsufull,setOpenSuccesful}) {
+
+  const [opponentName, setOpponentName] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+
+  useEffect(() => {
+    if (opponentName) {
+      // Filter players based on input value (case-insensitive)
+      const filteredSuggestions = players.filter((player) =>
+        player.toLowerCase().includes(opponentName.toLowerCase())
+      );
+      setSuggestions(filteredSuggestions);
+    } else {
+      setSuggestions([]); // Clear suggestions if input is empty
+    }
+  }, [opponentName]);
+
+  const handleChange = (e) => {
+    setOpponentName(e.target.value);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setOpponentName(suggestion); // Set the input to the clicked suggestion
+    setSuggestions([]); // Clear the suggestions
+  };
+
+
+  
     const handleOpen = () => {
       setOpen(!open);
       setOpenSuccesful(!openSuccsufull)
@@ -50,19 +87,37 @@ export function MatchSchedule({open,setOpen,openSuccsufull,setOpenSuccesful}) {
             >
               Opponent Name
             </Typography>
-            <Input
-              color="gray"
-              size="lg"
-              placeholder="e.g., John Doe"
-              name="name"
-              className="placeholder:opacity-100 focus:!border-t-gray-900 focus:border-none bg-inputbg/40"
-              containerProps={{
-                className: "!min-w-full",
-              }}
-              labelProps={{
-                className: "hidden",
-              }}
-            />
+            <div className="relative">
+      <Input
+        color="gray"
+        size="lg"
+        placeholder="e.g., John Doe"
+        name="name"
+        className="placeholder:opacity-100 focus:!border-t-gray-900 focus:border-none bg-inputbg/40"
+        containerProps={{
+          className: "!min-w-full",
+        }}
+        labelProps={{
+          className: "hidden",
+        }}
+        value={opponentName}
+        onChange={handleChange}
+      />
+      {suggestions.length > 0 && (
+        <ul className="absolute left-0 right-0 mt-1 overflow-y-auto bg-black border border-gray-300 rounded shadow-lg max-h-48">
+          {suggestions.map((suggestion, index) => (
+            <li
+              key={index}
+              className="p-2 text-gray-400 cursor-pointer hover:bg-gray-200"
+              onClick={() => handleSuggestionClick(suggestion)}
+            >
+              {suggestion}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+          
           </div>
           
           <div className="flex gap-4">
