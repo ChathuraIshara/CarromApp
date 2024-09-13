@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Input, Select, Option } from "@material-tailwind/react";
-import { databases } from "../appwrite/config";
+import { databases } from "../../Appwrite/appwrite.config";
 
 function Matches() {
   const [matches, setMatches] = useState([]);
