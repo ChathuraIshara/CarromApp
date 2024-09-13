@@ -49,13 +49,14 @@ const  Signupform =()=> {
 
  async function onSubmit({name,email,index,password}: z.infer<typeof SignUpFormValidation>) {
     setIsloading(true);
-    try {
-      const userData = {
+    const userData = {
         name,
         email,
         index,
         password
       }
+    try {
+      
       const playerdata ={
         name,
         index,
@@ -73,7 +74,8 @@ const  Signupform =()=> {
     } catch (error) {
       if (error?.code === 409) {
               // If the email already exists, set a custom error message
-              setErrorMessage("A user with this `${user}` already exists. Please try with a different email.");
+           setErrorMessage(`${userData.email}, already exists.`);
+
             } else {
               setErrorMessage("An error occurred while creating the user. Please try again.");
             }
@@ -92,6 +94,8 @@ const  Signupform =()=> {
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>{errorMessage}</AlertDescription>
+               <AlertDescription>Please try Again.</AlertDescription>
+
             </Alert>
           )}
            <CoustomFormFeild 
