@@ -10,8 +10,15 @@ import {
 import CoustomFormFeild from "./coustomFormFeild"
 import SubmitButton from "./SubmitButton"
 import { SignUpFormValidation } from "@/lib/Validaton"
-import { createUser } from "../../Appwrite/actions/players.actions";
+import { createplayer, createUser } from "../../Appwrite/actions/players.actions";
 import { useNavigate } from "react-router-dom"
+import { AlertCircle } from "lucide-react"
+ 
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert"
 export enum FormfieldTypes{
   INPUT='input',
   CHECKBOX='checkbox',
@@ -27,11 +34,12 @@ const  Signupform =()=> {
   // 1. Define your form.
   const navigate = useNavigate();
   const [isloading, setIsloading] = useState(false)
-
+ const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const form = useForm<z.infer<typeof SignUpFormValidation>>({
     resolver: zodResolver(SignUpFormValidation),
     defaultValues: {
       name: "",
+      email: "",
       index: "",
       password: "",
       confirmPassword: "",
@@ -39,39 +47,67 @@ const  Signupform =()=> {
   })
  
 
- async function onSubmit({name,index,password}: z.infer<typeof SignUpFormValidation>) {
+ async function onSubmit({name,email,index,password}: z.infer<typeof SignUpFormValidation>) {
     setIsloading(true);
-    console.log("name",name)
     try {
       const userData = {
         name,
+        email,
         index,
         password
       }
+      const playerdata ={
+        name,
+        index,
+        faculty:"",
+        wtsno:"",
+        district:"",
+        date_joined:""
+      }
      const user = await createUser(userData)
-      // if (user) {
-      //   navigate('/');
-      //   //'/dashboard/${createdUser.$id}'
-      // }
+      if(user){ 
+         const newPlayer =await createplayer(playerdata,user.$id)
+      }
+  
+//after submitting clear fleild
     } catch (error) {
-      console.log(error)
-      
+      if (error?.code === 409) {
+              // If the email already exists, set a custom error message
+              setErrorMessage("A user with this `${user}` already exists. Please try with a different email.");
+            } else {
+              setErrorMessage("An error occurred while creating the user. Please try again.");
+            }
     }
     finally{
       setIsloading(false);
     }
   }
   return (
+  
     <div className="flex justify-center items-center w-full">
      <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
-        
+          {errorMessage && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          )}
            <CoustomFormFeild 
               FeildType={FormfieldTypes.INPUT}
               control={form.control} 
               name="name"
               labal="Full Name"
               placeholder="Enter your Full Name here"
+         
+          />
+          <CoustomFormFeild 
+                FeildType={FormfieldTypes.INPUT}
+                control={form.control} 
+                name="email"
+                labal="Email Address"
+                placeholder="Enter your Email here"
          
           />
              <CoustomFormFeild 

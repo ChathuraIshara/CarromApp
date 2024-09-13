@@ -7,11 +7,11 @@ const passwordValidation = z
   .regex(/[a-z]/, "Password must contain at least one lowercase letter.")
   .regex(/[0-9]/, "Password must contain at least one number.")
   
-
 export const SignUpFormValidation = z.object({
     name: z.string()
         .min(2, "name must be at least 2 characters.")
         .max(50, "name must be at most 50 characters."),
+    email: z.string().email("Please enter a valid email address."),
     index: z.string()
         .regex(/^\d{6}[A-Za-z]$/, { message: "Enter valid index."}),
     password: passwordValidation,
