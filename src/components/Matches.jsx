@@ -1,241 +1,221 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { Input, Select, Option } from "@material-tailwind/react";
+import { databases } from "../appwrite/config";
 
-const matches = [
-  {
-    id: 1,
-    date: "20/09/2024",
-    time: "15:08 PM",
-    player1: "Samitha Wijenayake",
-    player1Score: 10,
-    player2: "Booshana Namudara",
-    player2Score: 25,
-  },
-  {
-    id: 2,
-    date: "20/09/2024",
-    time: "16:00 PM",
-    player1: "John Doe",
-    player1Score: 14,
-    player2: "Michael Johnson",
-    player2Score: 18,
-  },
-  {
-    id: 3,
-    date: "20/09/2024",
-    time: "17:30 PM",
-    player1: "Alice Brown",
-    player1Score: 19,
-    player2: "Emma Wilson",
-    player2Score: 21,
-  },
-  {
-    id: 4,
-    date: "20/09/2024",
-    time: "18:00 PM",
-    player1: "Robert Lee",
-    player1Score: 23,
-    player2: "David Kim",
-    player2Score: 19,
-  },
-];
-
-const PAGE_SIZE = 8; // Number of matches per page
-
-export function Matches() {
+function Matches() {
+  const [matches, setMatches] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState("newest"); // Default sort order
+  const [searchQuery, setSearchQuery] = useState(""); // Add search query state
 
-  // Calculate total pages
-  const totalPages = Math.ceil(matches.length / PAGE_SIZE);
+  const [filteredMatches, setFilteredMatches] = useState([]);
+  const itemsPerPage = 7;
 
-  // Get matches for the current page
-  const currentMatches = matches.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
-  );
+  const init = async () => {
+    try {
+      const response = await databases.listDocuments(
+        import.meta.env.VITE_DATABASEID,
+        import.meta.env.VITE_COLLECTIONID_MATCHES
+      );
+      let sortedMatches = response.documents;
 
-  // Handle page change
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+      // Sort matches based on the selected sortOrder
+      if (sortOrder === "newest") {
+        sortedMatches = sortedMatches.sort(
+          (a, b) => new Date(b.time) - new Date(a.time)
+        );
+      } else {
+        sortedMatches = sortedMatches.sort(
+          (a, b) => new Date(a.time) - new Date(b.time)
+        );
+      }
+      setMatches(sortedMatches);
+      setFilteredMatches(sortedMatches);
+    } catch (error) {
+      console.error("Error fetching matches:", error);
     }
   };
 
-  const handlePrevious = () => {
+  useEffect(() => {
+    init();
+  }, [sortOrder]); // Re-fetch and sort matches when sortOrder changes
+
+  useEffect(() => {
+    // Filter matches based on search query
+    if (!matches.length) return;
+    if (!searchQuery) return;
+
+    const filtered = matches.filter((match) => {
+      const searchLower = searchQuery.toLowerCase();
+
+      if (!match.player1_name && !match.player2_name) return;
+      return (
+        match.player1_name.toLowerCase().includes(searchLower) ||
+        match.player2_name.toLowerCase().includes(searchLower)
+      );
+    });
+    setFilteredMatches(filtered);
+  }, [searchQuery, matches]);
+
+  // Calculate total pages based on filtered matches
+  const totalPages = Math.ceil(filteredMatches.length / itemsPerPage);
+
+  // Get current page matches from filtered matches
+  const indexOfLastMatch = currentPage * itemsPerPage;
+  const indexOfFirstMatch = indexOfLastMatch - itemsPerPage;
+  const currentMatches = filteredMatches.slice(
+    indexOfFirstMatch,
+    indexOfLastMatch
+  );
+
+  const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const renderPagination = () => {
-    const pages = [];
-
-    // Always show the 1st page
-    pages.push(
-      <button
-        key={1}
-        className={`px-2 py-0.5 border rounded-lg ${
-          currentPage === 1
-            ? "bg-[#5932EA] text-white"
-            : "text-gray-700 hover:bg-gray-200"
-        } transition-all`}
-        onClick={() => handlePageChange(1)}
-      >
-        1
-      </button>
-    );
-
-    // Always show the 2nd page if totalPages > 1
-    if (totalPages > 1) {
-      pages.push(
-        <button
-          key={2}
-          className={`px-2 py-0.5 border rounded-lg ${
-            currentPage === 2
-              ? "bg-[#5932EA] text-white"
-              : "text-gray-700 hover:bg-gray-200"
-          } transition-all`}
-          onClick={() => handlePageChange(2)}
-        >
-          2
-        </button>
-      );
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
     }
-
-    // Show ellipsis if there are more pages between the current page and the 2nd page
-    if (currentPage > 3 && totalPages > 3) {
-      pages.push(
-        <span key="ellipsis1" className="px-3 py-1 text-gray-700">
-          ...
-        </span>
-      );
-    }
-
-    // Show the current page if it's beyond the first two pages
-    if (currentPage > 2 && currentPage < totalPages) {
-      pages.push(
-        <button
-          key={currentPage}
-          className="px-2 py-0.5 border rounded-lg bg-[#5932EA] text-white transition-all"
-          onClick={() => handlePageChange(currentPage)}
-        >
-          {currentPage}
-        </button>
-      );
-    }
-
-    // Show ellipsis if there are more pages between the current page and the last page
-    if (currentPage < totalPages - 1 && totalPages > 3) {
-      pages.push(
-        <span key="ellipsis2" className="px-2 py-0.5 text-gray-700">
-          ...
-        </span>
-      );
-    }
-
-    // Always show the last page if totalPages > 2
-    if (totalPages > 2) {
-      pages.push(
-        <button
-          key={totalPages}
-          className={`px-2 py-0.5 border rounded-lg ${
-            currentPage === totalPages
-              ? "bg-[#5932EA] text-white"
-              : "text-gray-700 hover:bg-gray-200"
-          } transition-all`}
-          onClick={() => handlePageChange(totalPages)}
-        >
-          {totalPages}
-        </button>
-      );
-    }
-
-    return pages;
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex flex-col">
-            <h2 className="text-xl font-semibold text-gray-900">All Matches</h2>
-            <h6 className="text-[12px] text-[#16C098]">Active Members</h6>
-          </div>
-          <div>
-            <input
-              type="text"
-              placeholder="Search"
-              className="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:border-black "
-            />
-            <select className="ml-4 border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-500 focus:border-black transition-all">
-              <option className="text-gray-500">Sort by: Newest</option>
-              <option className="text-gray-500">Sort by: Oldest</option>
-            </select>
+    <div className="bg-white p-4 rounded-lg w-full">
+      <div className="w-full flex justify-between items-center mb-3 mt-1 pl-3">
+        <div>
+          <h2 className="text-xl font-semibold text-slate-800">All Matches</h2>
+          <p className="text-[#16C098] hidden sm:block text-[14px]">
+            Active Members
+          </p>
+        </div>
+        <div className="px-6 ">
+          <div className="w-full max-w-sm min-w-[200px] relative flex flex-col sm:flex-row gap-3 ">
+            <div className="relative sm:block ">
+              {/* Input for searching matches */}
+              <Input
+                label="Search by Name"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="relative sm:block">
+              <Select
+                label="Select Version"
+                value={sortOrder} // Set the default value
+                onChange={(e) => setSortOrder(e)} // Update sortOrder on change
+              >
+                <Option value="newest">
+                  Sort by : <span className="font-semibold">Newest</span>
+                </Option>
+                <Option value="oldest">
+                  Sort by : <span className="font-semibold">Oldest</span>
+                </Option>
+              </Select>
+            </div>
           </div>
         </div>
-        <table className="min-w-full bg-white">
+      </div>
+
+      <div className="pt-2 relative flex flex-col w-full h-full text-gray-700 shadow-md rounded-lg bg-clip-border">
+        <table className="w-full text-left table-fixed ">
           <thead>
             <tr>
-              <th className="text-left py-3 px-10 font-semibold text-sm text-gray-600">
-                Date & Time
+              <th className="p-3 border-b border-slate-200 bg-slate-50">
+                <p className="text-sm font-semibold leading-none text-[#7C838A]">
+                  Date & Time
+                </p>
               </th>
-              <th className="text-left py-3 px-10 font-semibold text-sm text-gray-600">
-                Player #1 Score
+              <th className="p-3 border-b border-slate-200 bg-slate-50">
+                <p className="text-sm font-semibold leading-none text-[#7C838A]">
+                  Player #1 Score
+                </p>
               </th>
-              <th className="text-left py-3 px-10 font-semibold text-sm text-gray-600">
-                Player #2 Score
+              <th className="p-3 border-b border-slate-200 bg-slate-50">
+                <p className="text-sm font-semibold leading-none text-[#7C838A]">
+                  Player #2 Score
+                </p>
               </th>
             </tr>
           </thead>
           <tbody>
-            {currentMatches.map((match) => (
-              <tr key={match.id} className="border-t">
-                <td className="py-3 px-10 text-sm text-gray-700">
-                  {match.date} {match.time}
-                </td>
-                <td className="py-3 px-4 text-sm text-gray-700">
-                  <div className="grid grid-cols-2 gap-2">
-                    <span>{match.player1}</span>
-                    <span className="px-10  font-semibold">
-                      {match.player1Score}
-                    </span>
-                  </div>
-                </td>
-                <td className="py-3 px-4 text-sm text-gray-700">
-                  <div className="grid grid-cols-2 gap-2">
-                    <span>{match.player2}</span>
-                    <span className="px-10 font-semibold">
-                      {match.player2Score}
-                    </span>
-                  </div>
+            {currentMatches.length > 0 ? (
+              currentMatches.map((match, index) => {
+                const { formattedDate, formattedTime } = formatDateTime(
+                  match.time
+                );
+                return (
+                  <tr
+                    key={index}
+                    className="hover:bg-slate-50 border-b border-slate-200"
+                  >
+                    <td className="p-3">
+                      <p className="flex flex-col sm:flex-row text-sm text-slate-800">
+                        <span>{formattedDate}</span>
+                        <span className="ml-2 sm:ml-4">{formattedTime}</span>
+                      </p>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex justify-between lg:w-[70%] text-sm text-slate-500">
+                        <span>{match.player1_name}</span>
+                        <span className="font-semibold">
+                          {match.player1_marks}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex justify-between lg:w-[70%] text-sm text-slate-500">
+                        <span>{match.player2_name}</span>
+                        <span className="font-semibold">
+                          {match.player2_marks}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="3" className="text-center p-3 font-semibold">
+                  No matches found.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
-        <div className="mt-4 flex justify-between items-center">
-          <div className="text-[12px] text-gray-600">
-            Showing data 1 to 8 of 256K entries
-            {/* Showing page {currentPage} of {totalPages} */}
+
+        <div className="flex justify-between items-center px-4 py-5">
+          <div className="text-sm hidden sm:block text-slate-500">
+            Showing {indexOfFirstMatch + 1} to {indexOfLastMatch} of{" "}
+            {filteredMatches.length} entries
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex space-x-1">
             <button
-              onClick={handlePrevious}
-              className={`px-2 py-0.5 border rounded-lg text-gray-700  hover:bg-gray-200 transition-all`}
+              onClick={handlePrevPage}
               disabled={currentPage === 1}
+              className="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-black transition duration-200 ease"
             >
-              &lt;
+              Prev
             </button>
-            {renderPagination()}
+            {[...Array(totalPages)].map((_, pageIndex) => (
+              <button
+                key={pageIndex}
+                onClick={() => setCurrentPage(pageIndex + 1)}
+                className={`px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 ${
+                  currentPage === pageIndex + 1
+                    ? "bg-primarypurple border-slate-800 text-white"
+                    : "bg-white border-slate-200"
+                } rounded border hover:border-black transition duration-200 ease`}
+              >
+                {pageIndex + 1}
+              </button>
+            ))}
             <button
-              onClick={handleNext}
-              className={`px-2 py-0.5 border rounded-lg text-gray-700  hover:bg-gray-200 transition-all`}
+              onClick={handleNextPage}
               disabled={currentPage === totalPages}
+              className="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:border-black transition duration-200 ease"
             >
-              &gt;
+              Next
             </button>
           </div>
         </div>
@@ -245,3 +225,16 @@ export function Matches() {
 }
 
 export default Matches;
+
+function formatDateTime(isoString) {
+  const dateObj = new Date(isoString);
+  const formattedDate = dateObj.toLocaleDateString("en-GB");
+  const formattedTime = dateObj.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "UTC",
+  });
+
+  return { formattedDate, formattedTime };
+}
+``;
