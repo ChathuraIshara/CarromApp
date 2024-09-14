@@ -4,7 +4,7 @@ import { Button } from '@material-tailwind/react';
 import { useState } from 'react';
 import MatchSchedule from './dialogs/MatchSchedule';
 import ResultSubmitted from './dialogs/ResultSubmitted';
-import { databases } from '../appwrite/config';
+import { databases } from '../../Appwrite/appwrite.config';
 
 function Dashboard() {
   const [open, setOpen] = useState(false);  // var for opening match schedule popup
