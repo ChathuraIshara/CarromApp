@@ -11,8 +11,10 @@ import CoustomFormFeild from "./coustomFormFeild"
 import SubmitButton from "./SubmitButton"
 import { SignUpFormValidation } from "@/lib/Validaton"
 import { createplayer, createUser } from "../../Appwrite/actions/players.actions";
-import { useNavigate } from "react-router-dom"
-import { AlertCircle } from "lucide-react"
+import { useNavigate } from "react-router-dom";
+import { AlertCircle } from 'lucide-react';
+
+
  
 import {
   Alert,
@@ -84,12 +86,12 @@ const  Signupform =()=> {
   }
   return (
   
-    <div className="flex justify-center items-center w-full">
+    <div className="flex items-center justify-center w-full">
      <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-4">
           {errorMessage && (
             <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="w-4 h-4" />
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
