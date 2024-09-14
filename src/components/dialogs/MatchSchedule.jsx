@@ -60,9 +60,9 @@ export function MatchSchedule({
 
   const validateFields = () => {
     const newErrors = {
-      opponentName: opponentName ? "" : "Opponent Name is required",
-      yourMarks: yourMarks ? "" : "Your Marks are required",
-      opponentMarks: opponentMarks ? "" : "Opponent Marks are required",
+      opponentName: opponentName ? "" : "Opponent Name is required !",
+      yourMarks: yourMarks ? "" : "Your Marks are required !",
+      opponentMarks: opponentMarks ? "" : "Opponent Marks are required !",
     };
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) => error !== "");
@@ -139,9 +139,8 @@ export function MatchSchedule({
             )}
             {errors.opponentName && (
               <Typography
-                color="red"
                 variant="small"
-                className="text-xs sm:text-sm"
+                className="text-xs text-red-400 sm:text-sm"
               >
                 {errors.opponentName}
               </Typography>
@@ -177,9 +176,9 @@ export function MatchSchedule({
             />
             {errors.yourMarks && (
               <Typography
-                color="red"
+    
                 variant="small"
-                className="text-xs sm:text-sm"
+                className="text-xs text-red-400 sm:text-sm"
               >
                 {errors.yourMarks}
               </Typography>
@@ -213,9 +212,9 @@ export function MatchSchedule({
             />
             {errors.opponentMarks && (
               <Typography
-                color="red"
+               
                 variant="small"
-                className="text-xs sm:text-sm"
+                className="text-xs text-red-400 sm:text-sm"
               >
                 {errors.opponentMarks}
               </Typography>
