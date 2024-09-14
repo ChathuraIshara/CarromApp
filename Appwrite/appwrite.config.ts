@@ -13,6 +13,7 @@ export const DATABASE_ID="66e04fc1000d37169a1b"
 export const PLAYER_COLLECTION_ID="66e04fe60010a176695f"
 export const BUCKET_ID="66e1867800086b018e3c"
 export const ENDPOINT="https://cloud.appwrite.io/v1"
+export const MATCH_COLLECTION_ID="66e05063001e2f77fc2d"
 
 const client =new sdk.Client();
 client
