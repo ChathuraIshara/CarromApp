@@ -10,6 +10,9 @@ import {
   DialogFooter,
 } from "@material-tailwind/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import {DATABASE_ID} from '../../../Appwrite/appwrite.config';
+import {MATCH_COLLECTION_ID} from '../../../Appwrite/appwrite.config';
+import { databases } from "../../../Appwrite/appwrite.config";
 
 const players = [
   "John Doe",
@@ -68,10 +71,30 @@ export function MatchSchedule({
     return !Object.values(newErrors).some((error) => error !== "");
   };
 
-  const handleScheduleSubmit = () => {
+  const handleScheduleSubmit = async (matchData) => {
     if (validateFields()) {
-      setOpen(!open);
-      setOpenSuccesful(!openSuccsufull);
+      try {
+        const response = await databases.createDocument(
+          DATABASE_ID,       // Database ID
+          MATCH_COLLECTION_ID, // Collection ID
+          'unique()',
+          {
+            player1_name:'evano',
+            player2_name:opponentName,
+            player1_marks: parseInt(yourMarks, 10), // Ensure this is an integer
+           player2_marks: parseInt(opponentMarks, 10), // Ensure this is an integer
+            time:new Date().toISOString()
+          }
+         
+        );
+        console.log("Document Created: ", response);
+        setOpen(!open);
+        setOpenSuccesful(!openSuccsufull);
+      } catch (error) {
+        console.log("id",DATABASE_ID)
+        console.error("Error creating document: ", error);
+      }
+     
     }
   };
 
