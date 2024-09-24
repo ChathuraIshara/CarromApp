@@ -1,17 +1,17 @@
 import { ID, Query } from "node-appwrite";
 import { player, user } from "../../types";
-import { DATABASE_ID, databases, PLAYER_COLLECTION_ID, users } from "../appwrite.config";
+import { account, DATABASE_ID, databases, PLAYER_COLLECTION_ID, users } from "../appwrite.config";
 
 export const createUser = async (user: user ) => {
     console.log("create user data", user);
     try {
-        // Create a bcrypt-encrypted user
-        const newUser = await users.createBcryptUser(
-            ID.unique(),   // Unique user ID
-            user.email,    // User email
-            user.password, // User password (bcrypt encrypted automatically)
-            user.name      // Optional: user's name
+        const newUser = await account.create(
+            ID.unique(), 
+            user.email,
+            user.password,
+            user.name
         );
+
         console.log("new user", newUser);
         return newUser;
 
