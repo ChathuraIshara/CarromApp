@@ -35,6 +35,10 @@ import { Button } from "../components/ui/button"
            <Signupform/>
           
           </div>
+           <Typography variant="paragraph" className="text-center text-blue-gray-500 font-medium mt-4">
+              Alredy registered?
+              <Link to="/sign-in" className="text-gray-900 ml-1 hover:text-primarypurple">Login User</Link>
+            </Typography>
         </div>
       </section>
     );
