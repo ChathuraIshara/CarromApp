@@ -10,26 +10,17 @@ import {
   DialogFooter,
 } from "@material-tailwind/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import {DATABASE_ID} from '../../../Appwrite/appwrite.config';
-import {MATCH_COLLECTION_ID} from '../../../Appwrite/appwrite.config';
+import { DATABASE_ID } from '../../../Appwrite/appwrite.config';
+import { MATCH_COLLECTION_ID } from '../../../Appwrite/appwrite.config';
 import { databases } from "../../../Appwrite/appwrite.config";
-
-const players = [
-  "John Doe",
-  "Jane Smith",
-  "James Johnson",
-  "jofdfs",
-  "jfsdafdsf",
-  "Emily Davis",
-  "Michael Brown",
-  // Add more player names here
-];
 
 export function MatchSchedule({
   open,
   setOpen,
   openSuccsufull,
   setOpenSuccesful,
+  loggedUser,
+  setMatchScheduleTrigger
 }) {
   const [opponentName, setOpponentName] = useState("");
   const [yourMarks, setYourMarks] = useState("");
@@ -41,10 +32,28 @@ export function MatchSchedule({
     opponentMarks: "",
   });
 
+  const [players, setPlayers] = useState([]);
+
+  const fetchAllUsers = async () => {
+    try {
+      const response = await databases.listDocuments(
+        import.meta.env.VITE_DATABASEID, // Your Database ID
+        import.meta.env.VITE_COLLECTIONID_PLAYERS // Your Collection ID (players)
+      );
+      setPlayers(response.documents); // Array of users
+    } catch (err) {
+      console.error("Failed to fetch users:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllUsers();
+  }, []);
+
   useEffect(() => {
     if (opponentName) {
       const filteredSuggestions = players.filter((player) =>
-        player.toLowerCase().includes(opponentName.toLowerCase())
+        player.name.toLowerCase().includes(opponentName.toLowerCase())
       );
       setSuggestions(filteredSuggestions);
     } else {
@@ -56,22 +65,22 @@ export function MatchSchedule({
     setOpponentName(e.target.value);
   };
 
-  const handleSuggestionClick = (suggestion) => {
-    setOpponentName(suggestion);
-    setSuggestions([]);
+  const handleSuggestionClick = (name) => {
+    setOpponentName(name); // Set only the name
+    setSuggestions([]); // Clear suggestions after selection
   };
 
   const validateFields = () => {
     const newErrors = {
-      opponentName: opponentName ? "" : "Opponent Name is required !",
-      yourMarks: yourMarks ? "" : "Your Marks are required !",
-      opponentMarks: opponentMarks ? "" : "Opponent Marks are required !",
+      opponentName: opponentName ? "" : "Opponent Name is required!",
+      yourMarks: yourMarks ? "" : "Your Marks are required!",
+      opponentMarks: opponentMarks ? "" : "Opponent Marks are required!",
     };
     setErrors(newErrors);
     return !Object.values(newErrors).some((error) => error !== "");
   };
 
-  const handleScheduleSubmit = async (matchData) => {
+  const handleScheduleSubmit = async () => {
     if (validateFields()) {
       try {
         const response = await databases.createDocument(
@@ -79,22 +88,19 @@ export function MatchSchedule({
           MATCH_COLLECTION_ID, // Collection ID
           'unique()',
           {
-            player1_name:'evano',
-            player2_name:opponentName,
+            player1_name: loggedUser.name,
+            player2_name: opponentName,
             player1_marks: parseInt(yourMarks, 10), // Ensure this is an integer
-           player2_marks: parseInt(opponentMarks, 10), // Ensure this is an integer
-            time:new Date().toISOString()
+            player2_marks: parseInt(opponentMarks, 10), // Ensure this is an integer
+            time: new Date().toISOString(),
           }
-         
         );
-        console.log("Document Created: ", response);
-        setOpen(!open);
-        setOpenSuccesful(!openSuccsufull);
+        setOpen(false);
+        setOpenSuccesful(true);
+        setMatchScheduleTrigger(count=>count+1);
       } catch (error) {
-        console.log("id",DATABASE_ID)
         console.error("Error creating document: ", error);
       }
-     
     }
   };
 
@@ -143,9 +149,6 @@ export function MatchSchedule({
               }}
               value={opponentName}
               onChange={handleChange}
-              onBlur={() => {
-                setTimeout(() => setSuggestions([]), 100);
-              }}
             />
             {suggestions.length > 0 && (
               <ul className="absolute left-0 right-0 z-10 mt-2 overflow-y-auto bg-white border border-gray-300 rounded-lg shadow-lg max-h-48">
@@ -153,9 +156,9 @@ export function MatchSchedule({
                   <li
                     key={index}
                     className="p-2 text-gray-700 cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSuggestionClick(suggestion)}
+                    onClick={() => handleSuggestionClick(suggestion.name)}
                   >
-                    {suggestion}
+                    {suggestion.name}
                   </li>
                 ))}
               </ul>
@@ -199,7 +202,6 @@ export function MatchSchedule({
             />
             {errors.yourMarks && (
               <Typography
-    
                 variant="small"
                 className="text-xs text-red-400 sm:text-sm"
               >
@@ -235,7 +237,6 @@ export function MatchSchedule({
             />
             {errors.opponentMarks && (
               <Typography
-               
                 variant="small"
                 className="text-xs text-red-400 sm:text-sm"
               >

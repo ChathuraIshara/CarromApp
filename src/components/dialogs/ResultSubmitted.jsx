@@ -10,7 +10,7 @@ import {
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import checkCircle from '../../../src/assets/icons/check-circle.svg';
 
-export function ResultSubmitted({openSuccsufull,setOpenSuccesful}) {
+export function ResultSubmitted({openSuccsufull,setOpenSuccesful,loggedUser}) {
     const handleOpen = () => setOpenSuccesful(!openSuccsufull);
   return (
     <Dialog size="sm" open={openSuccsufull} handler={handleOpen} className="p-4">

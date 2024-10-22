@@ -36,6 +36,8 @@ function Matches() {
     }
   };
 
+ 
+
   useEffect(() => {
     init();
   }, [sortOrder]); // Re-fetch and sort matches when sortOrder changes
@@ -81,8 +83,8 @@ function Matches() {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg w-full">
-      <div className="w-full flex justify-between items-center mb-3 mt-1 pl-3">
+    <div className="w-full p-4 bg-white rounded-lg">
+      <div className="flex items-center justify-between w-full pl-3 mt-1 mb-3">
         <div>
           <h2 className="text-xl font-semibold text-slate-800">All Matches</h2>
           <p className="text-[#16C098] hidden sm:block text-[14px]">
@@ -117,7 +119,7 @@ function Matches() {
         </div>
       </div>
 
-      <div className="pt-2 relative flex flex-col w-full h-full text-gray-700 shadow-md rounded-lg bg-clip-border">
+      <div className="relative flex flex-col w-full h-full pt-2 text-gray-700 rounded-lg shadow-md bg-clip-border">
         <table className="w-full text-left table-fixed ">
           <thead>
             <tr>
@@ -147,10 +149,10 @@ function Matches() {
                 return (
                   <tr
                     key={index}
-                    className="hover:bg-slate-50 border-b border-slate-200"
+                    className="border-b hover:bg-slate-50 border-slate-200"
                   >
                     <td className="p-3">
-                      <p className="flex flex-col sm:flex-row text-sm text-slate-800">
+                      <p className="flex flex-col text-sm sm:flex-row text-slate-800">
                         <span>{formattedDate}</span>
                         <span className="ml-2 sm:ml-4">{formattedTime}</span>
                       </p>
@@ -176,7 +178,7 @@ function Matches() {
               })
             ) : (
               <tr>
-                <td colSpan="3" className="text-center p-3 font-semibold">
+                <td colSpan="3" className="p-3 font-semibold text-center">
                   No matches found.
                 </td>
               </tr>
@@ -184,8 +186,8 @@ function Matches() {
           </tbody>
         </table>
 
-        <div className="flex justify-between items-center px-4 py-5">
-          <div className="text-sm hidden sm:block text-slate-500">
+        <div className="flex items-center justify-between px-4 py-5">
+          <div className="hidden text-sm sm:block text-slate-500">
             Showing {indexOfFirstMatch + 1} to {indexOfLastMatch} of{" "}
             {filteredMatches.length} entries
           </div>
@@ -193,7 +195,7 @@ function Matches() {
             <button
               onClick={handlePrevPage}
               disabled={currentPage === 1}
-              className="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-black transition duration-200 ease"
+              className="px-3 py-1 text-sm font-normal transition duration-200 bg-white border rounded min-w-9 min-h-9 text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-black ease"
             >
               Prev
             </button>
@@ -213,7 +215,7 @@ function Matches() {
             <button
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 min-w-9 min-h-9 text-sm font-normal text-slate-500 bg-white border border-slate-200 rounded hover:border-black transition duration-200 ease"
+              className="px-3 py-1 text-sm font-normal transition duration-200 bg-white border rounded min-w-9 min-h-9 text-slate-500 border-slate-200 hover:border-black ease"
             >
               Next
             </button>

@@ -7,8 +7,8 @@ export const loginUser = async (email: string, password: string) => {
     try {
         console.log(email, password);
         const session = await account.createEmailPasswordSession(email, password);
-        console.log("Session created:", session.$id);
-        const encryptedText = encrypt(session.$id);
+        console.log("Session created:", session.userId);
+        const encryptedText = encrypt(session.userId);
         setUserSession(`token`, encryptedText);
         console.log('auth',authUser())
  
