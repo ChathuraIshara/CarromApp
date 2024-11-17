@@ -17,7 +17,7 @@ const Navbar = ({ toggleSidebar }) => {
         </div>
         <div className='flex items-center gap-4 md:gap-7'>
         <button className="text-textsecondary md:hidden" onClick={toggleSidebar}>
-          <FaBars size={20} />
+          <FaBars size={20}  />
         </button>
         <FaBell className="text-gray-600 text-textsecondary md:text-lg" />
         <FaCog className="text-gray-600 text-textsecondary md:text-lg" />
