@@ -9,7 +9,7 @@ export const createUser = async (user: user ) => {
             ID.unique(), 
             user.email,
             user.password,
-            user.name
+            user.name,
         );
 
         console.log("new user", newUser);

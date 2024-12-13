@@ -6,7 +6,7 @@ import Matches from '../components/Matches';
 import Players from '../components/Players';
 import Help from '../components/Help';
 // import Profile from '../components/Profile';
-import { Profile} from './dashboard/profile';
+import Profile from '../pages/Profile';
 
 
 

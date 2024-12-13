@@ -12,6 +12,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Control } from 'react-hook-form'
 import { FormfieldTypes } from './Signupform'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 interface CustomProps {
     control:Control<any>
@@ -19,6 +21,7 @@ interface CustomProps {
     name:string
     labal:string
     placeholder:string
+    options?: { value: string; label: string }[];
     iconSrc?:string
     iconAlt?:string
     disabled?:boolean
@@ -28,11 +31,11 @@ interface CustomProps {
     renderSkeleton?:(field:any)=>React.ReactNode
 }
  const RenderFeild =({field,props}:{field:any; props:CustomProps})=>{
-    const {FeildType,iconSrc,iconAlt,placeholder}=props
+    const {FeildType,iconSrc,iconAlt,placeholder,options}=props
     switch(FeildType){
         case FormfieldTypes.INPUT:
             return(
-                <div className='flex rounded-md border border-dark-500 bg-dark-400'>
+                <div className='flex border rounded-md border-dark-500 bg-dark-400'>
                   {iconSrc && (
                     <img
                         src={iconSrc} // Use either the passed-in src or the imported default icon
@@ -48,6 +51,24 @@ interface CustomProps {
                   </FormControl>
                 </div>
             )
+            case FormfieldTypes.SELECT:
+              return (
+                <FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={placeholder} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {options && options.map((option, index) => (
+                        <SelectItem key={index} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+              );
+      
     }
 
  }
